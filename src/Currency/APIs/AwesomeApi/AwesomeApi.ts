@@ -1,5 +1,7 @@
+import { HttpException } from '@nestjs/common';
 import axios from 'axios';
 import { Conversion } from 'src/interfaces';
+import CurrencyData from './awesomeApi.interface';
 
 export default class AwesomeApi implements Conversion {
   urlApi: string;
@@ -17,15 +19,14 @@ export default class AwesomeApi implements Conversion {
         .join();
 
       const { data } = await axios.get(`${this.urlApi}/${currencySearch}`);
-
-      const result = data.map((item) => ({
+      const result = data.map((item: CurrencyData) => ({
         currency: item.code,
         value: item.ask,
       }));
-
       return result;
     } catch (error) {
-      throw new Error(error);
+      const { message, status } = error.response.data;
+      throw new HttpException(message, status);
     }
   }
 }
