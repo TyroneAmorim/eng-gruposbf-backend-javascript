@@ -4,6 +4,7 @@ import { CurrencyService } from './Currency/currency.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CurrencyEntity } from './Currency/currency.entity';
 import { CurrencyModule } from './Currency/currency.module';
+import { CacheRedisModule } from './CacheTool/Redis/cacheRedis.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CurrencyModule } from './Currency/currency.module';
       useUnifiedTopology: true,
     }),
     CurrencyModule,
+    CacheRedisModule,
   ],
   controllers: [CurrencyController],
   providers: [CurrencyService],
