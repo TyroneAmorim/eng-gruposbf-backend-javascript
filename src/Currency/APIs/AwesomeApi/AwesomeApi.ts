@@ -9,7 +9,7 @@ export default class AwesomeApi implements Conversion {
   currencySearch: string[];
 
   constructor() {
-    this.urlApi = 'https://economia.awesomeapi.com.br/json';
+    this.urlApi = 'https://economia.awesomeapi.com.br/json/last';
   }
 
   async getCurrencys() {
