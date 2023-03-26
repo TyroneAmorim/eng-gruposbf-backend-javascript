@@ -1,32 +1,31 @@
 import { HttpException } from '@nestjs/common';
 import axios from 'axios';
-import { Conversion } from 'src/interfaces';
+import { env } from 'process';
+import { Conversion, Currency } from 'src/interfaces';
 import CurrencyData from './awesomeApi.interface';
 
 export default class AwesomeApi implements Conversion {
   urlApi: string;
   currencyBase: string;
-  currencySearch: string[];
+  currenciesSearch: string[];
 
   constructor() {
-    this.urlApi = 'https://economia.awesomeapi.com.br/json/last';
+    this.urlApi = env.AWESOME_API_URL;
   }
 
-  async getCurrencys() {
+  async getCurrencies() {
     try {
-      const currencySearch = this.currencySearch
+      const currenciesSearch = this.currenciesSearch
         .filter((item) => item !== this.currencyBase)
-        .map((item) => `${item}-${this.currencyBase}`)
+        .map((item) => `${this.currencyBase}-${item}`)
         .join();
 
-      const resultData = await axios.get(`${this.urlApi}/${currencySearch}`);
-      const data = resultData.data.length
-        ? resultData.data
-        : [{ ...resultData.data[Object.keys(resultData.data)[0]] }];
+      const resultData = await axios.get(`${this.urlApi}/${currenciesSearch}`);
 
-      const result = data.map((item: CurrencyData) => ({
-        currency: item.code,
-        value: item.ask,
+      const data: CurrencyData[] = Object.values(resultData.data);
+      const result: Currency[] = data.map((item: CurrencyData) => ({
+        currency: item.codein,
+        value: Number(item.ask).toFixed(2),
       }));
 
       return result;
