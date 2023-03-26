@@ -10,7 +10,7 @@ export class CacheRedisService implements CacheTool {
     return await this.cacheManager.get(key);
   }
 
-  async set(key: string, value: string): Promise<void> {
-    await this.cacheManager.set(key, value);
+  async set(key: string, value: string, tll?: number): Promise<void> {
+    await this.cacheManager.set(key, value, tll);
   }
 }
