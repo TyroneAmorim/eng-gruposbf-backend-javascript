@@ -1,4 +1,4 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Currency } from 'src/interfaces';
 import AwesomeApi from './APIs/AwesomeApi/AwesomeApi';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,7 +18,7 @@ export class CurrencyService {
 
   validateCurrency(currency: string) {
     const currencyExists = validateCurrency(currency);
-    if (!currencyExists) throw new HttpException('Moeda não encontrada', 404);
+    if (!currencyExists) throw new NotFoundException('Moeda não encontrada');
   }
 
   convert(currencies: Currency[], currencyBaseValue: number): Currency[] {
