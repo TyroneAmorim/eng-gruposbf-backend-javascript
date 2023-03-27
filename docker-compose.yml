@@ -1,4 +1,4 @@
-# Use root/example as user/password credentials
+
 version: '3.7'
 
 services:
@@ -9,9 +9,9 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: parametros
+      MONGO_INITDB_DATABASE: $MONGO_DB
     ports:
-      - 27017:27017
+      - $MONGO_PORT:$MONGO_PORT
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
@@ -25,11 +25,11 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: root
-      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongo:$MONGO_PORT/
   
   redis:
     image: redis
     restart: on-failure
-    command: redis-server --loglevel warning --requirepass cachePwd123
+    command: redis-server --loglevel warning --requirepass $REDIS_PASSWORD
     ports:
-      - 6379:6379
+      - $REDIS_PORT:$REDIS_PORT
