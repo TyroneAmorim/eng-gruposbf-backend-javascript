@@ -2,9 +2,10 @@ export interface Currency {
   currency: string;
   value: string | number;
 }
-
-export interface Conversion {
+export interface GetCurrenciesParams {
   currencyBase: string;
   currenciesSearch: string[];
-  getCurrencies(): Promise<Currency[]>;
+}
+export interface Conversion {
+  getCurrencies(params: GetCurrenciesParams): Promise<Currency[]>;
 }
