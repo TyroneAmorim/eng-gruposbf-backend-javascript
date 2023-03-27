@@ -1,26 +1,30 @@
-import { HttpException } from '@nestjs/common';
-import axios from 'axios';
+import { HttpService } from '@nestjs/axios';
+import { BadGatewayException, Injectable } from '@nestjs/common';
 import { env } from 'process';
-import { Conversion, Currency } from 'src/interfaces';
+import { Conversion, Currency, GetCurrenciesParams } from 'src/interfaces';
 import CurrencyData from './awesomeApi.interface';
 
+@Injectable()
 export default class AwesomeApi implements Conversion {
-  urlApi: string;
-  currencyBase: string;
-  currenciesSearch: string[];
-
-  constructor() {
-    this.urlApi = env.AWESOME_API_URL;
-  }
-
-  async getCurrencies() {
+  constructor(private readonly httpService: HttpService) {}
+  /**
+   * Consulta cotacao das moedas solicitadas na API
+   * @param {GetCurrenciesParams} param Moeda para conversao e moedas origem
+   * @returns {Currency[]} Lista de moedas pesquisadas
+   */
+  async getCurrencies({
+    currencyBase,
+    currenciesSearch,
+  }: GetCurrenciesParams): Promise<Currency[]> {
     try {
-      const currenciesSearch = this.currenciesSearch
-        .filter((item) => item !== this.currencyBase)
-        .map((item) => `${this.currencyBase}-${item}`)
+      const currencieList = currenciesSearch
+        .filter((item) => item !== currencyBase)
+        .map((item) => `${currencyBase}-${item}`)
         .join();
 
-      const resultData = await axios.get(`${this.urlApi}/${currenciesSearch}`);
+      const resultData = await this.httpService.axiosRef.get(
+        `${env.AWESOME_API_URL}/${currencieList}`,
+      );
 
       const data: CurrencyData[] = Object.values(resultData.data);
       const result: Currency[] = data.map((item: CurrencyData) => ({
@@ -30,8 +34,8 @@ export default class AwesomeApi implements Conversion {
 
       return result;
     } catch (error) {
-      const { message, status } = error.response.data;
-      throw new HttpException(message, status);
+      console.log(error);
+      throw new BadGatewayException();
     }
   }
 }
