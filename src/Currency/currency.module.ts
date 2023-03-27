@@ -3,12 +3,18 @@ import { CurrencyController } from './currency.controller';
 import { CurrencyEntity } from './currency.entity';
 import { CurrencyService } from './currency.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CacheRedisModule } from 'src/CacheTool/Redis/cacheRedis.module';
+import { CacheRedisModule } from '../CacheTool/Redis/cacheRedis.module';
+import AwesomeApi from './APIs/AwesomeApi/AwesomeApi';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CurrencyEntity]), CacheRedisModule],
+  imports: [
+    TypeOrmModule.forFeature([CurrencyEntity]),
+    CacheRedisModule,
+    HttpModule,
+  ],
   controllers: [CurrencyController],
-  providers: [CurrencyService],
-  exports: [TypeOrmModule],
+  providers: [CurrencyService, AwesomeApi],
+  exports: [TypeOrmModule, AwesomeApi],
 })
 export class CurrencyModule {}
