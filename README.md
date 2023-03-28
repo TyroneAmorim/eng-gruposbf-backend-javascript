@@ -34,9 +34,11 @@ docker-compose --env-file .env.development up -d
 ```
 
 #### Rode as migrations
+**OBS**: Este comando já está presente no arquivo docker-compose.
 ```bash
 npm run migration:run:dev
-````
+```
+
 
 Abra no seu navegador e teste
 
