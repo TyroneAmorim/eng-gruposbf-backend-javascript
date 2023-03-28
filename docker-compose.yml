@@ -36,7 +36,7 @@ services:
 
   web:
     build: .
-    command: npm run start:dev
+    command: sh -c "npm run migration:run:dev && npm run start:dev"
     volumes:
       - .:/usr/app/
       - /usr/app/node_modules
