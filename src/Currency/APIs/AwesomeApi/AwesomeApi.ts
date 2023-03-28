@@ -1,5 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { env } from 'process';
 import { Conversion, Currency, GetCurrenciesParams } from 'src/interfaces';
 import CurrencyData from './awesomeApi.interface';
@@ -16,6 +20,11 @@ export default class AwesomeApi implements Conversion {
     currencyBase,
     currenciesSearch,
   }: GetCurrenciesParams): Promise<Currency[]> {
+    if (!currencyBase || !currenciesSearch || !currenciesSearch.length) {
+      throw new InternalServerErrorException(
+        'Moedas disponiveis nao preenchidas em tempo de execucao',
+      );
+    }
     try {
       const currencieList = currenciesSearch
         .filter((item) => item !== currencyBase)
@@ -34,8 +43,8 @@ export default class AwesomeApi implements Conversion {
 
       return result;
     } catch (error) {
-      console.log(error);
-      throw new BadGatewayException();
+      const { message, status } = error.response;
+      throw new HttpException(message, status);
     }
   }
 }
