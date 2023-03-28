@@ -1,16 +1,22 @@
 import { HttpService } from '@nestjs/axios';
-import { BadGatewayException } from '@nestjs/common';
+import {
+  HttpException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import AwesomeApi from './AwesomeApi';
 
 const apiResponse = {
-  USDBRL: {
-    codein: 'USD',
-    ask: '0.19',
-  },
-  EURBRL: {
-    codein: 'EUR',
-    ask: '0.15',
+  data: {
+    USDBRL: {
+      codein: 'USD',
+      ask: '0.19',
+    },
+    EURBRL: {
+      codein: 'EUR',
+      ask: '0.15',
+    },
   },
 };
 
@@ -26,10 +32,16 @@ const currencies = [
 ];
 
 const mockApi = {
-  get: jest.fn(),
+  axiosRef: {
+    get: jest.fn(),
+  },
 };
 
 let api: AwesomeApi;
+
+beforeEach(async () => {
+  mockApi.axiosRef.get.mockReset();
+});
 
 beforeAll(async () => {
   const module: TestingModule = await Test.createTestingModule({
@@ -46,7 +58,7 @@ beforeAll(async () => {
 
 describe('AwesomeApi', () => {
   it('valida resposta da api de conversão', async () => {
-    mockApi.get.mockResolvedValue(apiResponse);
+    mockApi.axiosRef.get.mockReturnValue(apiResponse);
     const result = await api.getCurrencies({
       currencyBase: 'BRL',
       currenciesSearch: ['USD', 'EUR'],
@@ -55,14 +67,24 @@ describe('AwesomeApi', () => {
   });
 
   it('valida possivel erro dentro do recurso', async () => {
-    mockApi.get.mockRejectedValue(new Error('Similacao de erro dentro do try'));
+    mockApi.axiosRef.get.mockRejectedValue(new InternalServerErrorException());
     try {
       await api.getCurrencies({
-        currencyBase: 'BRL',
+        currencyBase: null,
+        currenciesSearch: null,
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(InternalServerErrorException);
+    }
+
+    mockApi.axiosRef.get.mockRejectedValue(new NotFoundException());
+    try {
+      await api.getCurrencies({
+        currencyBase: 'BRLT',
         currenciesSearch: ['USD', 'EUR'],
       });
     } catch (error) {
-      expect(error).toBeInstanceOf(BadGatewayException);
+      expect(error).toBeInstanceOf(HttpException);
     }
   });
 });
